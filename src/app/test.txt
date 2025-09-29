@@ -1,0 +1,122 @@
+import { create } from "zustand"
+import { persist } from "zustand/middleware"
+import { nanoid } from "nanoid"
+
+// Types
+export interface Product {
+  id: string
+  category: string
+  name: string
+  reviews: string
+  price: string
+  imageUrl: string
+  quantity: number // stock quantity
+}
+
+interface CartItem {
+  productId: string
+  quantity: number
+}
+
+interface CartStore {
+  // Product catalogue
+  products: Product[]
+  // Cart contents
+  cart: CartItem[]
+  // Search/filter term
+  searchTerm: string
+
+  // Product CRUD
+  setProducts: (products: Product[]) => void
+  addProduct: (product: Omit<Product, 'id'>) => void
+  updateProduct: (id: string, updates: Partial<Omit<Product, 'id'>>) => void
+  deleteProduct: (id: string) => void
+
+  // Cart actions
+  addToCart: (productId: string, qty?: number) => void
+  removeFromCart: (productId: string) => void
+  updateCartQuantity: (productId: string, quantity: number) => void
+  clearCart: () => void
+
+  // Search
+  setSearchTerm: (term: string) => void
+
+  // Derived selectors (usage via get)
+  getFilteredProducts: () => Product[]
+  getGroupedProducts: () => Record<string, Product[]>
+  getCartItems: () => (Product & { quantity: number })[]
+}
+
+export const useCartStore = create<CartStore>()(
+  persist(
+    (set, get) => ({
+      products: [],
+      cart: [],
+      searchTerm: '',
+
+      setProducts: (products) => set({ products }),
+      addProduct: (product) => {
+        const newProd: Product = { ...product, id: nanoid() }
+        set(({ products }) => ({ products: [...products, newProd] }))
+      },
+      updateProduct: (id, updates) => set(({ products }) => ({
+        products: products.map(p => p.id === id ? { ...p, ...updates } : p)
+      })),
+      deleteProduct: (id) => set(({ products, cart }) => ({
+        products: products.filter(p => p.id !== id),
+        cart: cart.filter(item => item.productId !== id)
+      })),
+
+      addToCart: (productId, qty = 1) => set(({ cart }) => {
+        const idx = cart.findIndex(i => i.productId === productId)
+        if (idx > -1) {
+          const updated = [...cart]
+          updated[idx].quantity += qty
+          return { cart: updated }
+        }
+        return { cart: [...cart, { productId, quantity: qty }] }
+      }),
+      removeFromCart: (productId) => set(({ cart }) => ({
+        cart: cart.filter(item => item.productId !== productId)
+      })),
+      updateCartQuantity: (productId, quantity) => {
+        if (quantity <= 0) return get().removeFromCart(productId)
+        set(({ cart }) => ({
+          cart: cart.map(item =>
+            item.productId === productId ? { ...item, quantity } : item
+          )
+        }))
+      },
+      clearCart: () => set({ cart: [] }),
+
+      setSearchTerm: (term) => set({ searchTerm: term }),
+
+      getFilteredProducts: () => {
+        const { products, searchTerm } = get()
+        if (!searchTerm) return products
+        const term = searchTerm.toLowerCase()
+        return products.filter(p => p.name.toLowerCase().includes(term))
+      },
+
+      getGroupedProducts: () => {
+        const filtered = get().getFilteredProducts()
+        return filtered.reduce((acc, prod) => {
+          (acc[prod.category] ??= []).push(prod)
+          return acc
+        }, {} as Record<string, Product[]>)
+      },
+
+      getCartItems: () => {
+        const { cart, products } = get()
+        return cart.map(ci => {
+          const prod = products.find(p => p.id === ci.productId)
+          return prod ? { ...prod, quantity: ci.quantity } : null
+        }).filter(Boolean) as (Product & { quantity: number })[]
+      }
+    }),
+    {
+      name: 'app-storage',
+      getStorage: () => sessionStorage,
+    }
+  )
+)

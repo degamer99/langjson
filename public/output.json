@@ -1,0 +1,50 @@
+ [
+  {
+    "id": 1,
+    "language": "إِنَّ فِي خَلْقِ السَّمَاوَاتِ وَالْأَرْضِ",
+    "translation": "Indeed, in the creation of the heavens and the earth...",
+    "wordByWord": [
+      {
+        "language": "إنّ",
+        "translation": "Indeed"
+      },
+      {
+        "language": "في",
+        "translation": "in"
+      },
+      {
+        "language": "خلق",
+        "translation": "the creation of"
+      },
+      {
+        "language": "السماوات",
+        "translation": "the heavens"
+      },
+      {
+        "language": "والأرض",
+        "translation": "and the earth"
+      }
+    ],
+    "metadata": "Example phrase 1"
+  },
+  {
+    "id": 2,
+    "language": "Ina son ka",
+    "translation": "I like you (male)",
+    "wordByWord": [
+      {
+        "language": "Ina",
+        "translation": "I"
+      },
+      {
+        "language": "son",
+        "translation": "like"
+      },
+      {
+        "language": "ka",
+        "translation": "you (male)"
+      }
+    ],
+    "metadata": "Hausa Phrase"
+  }
+]
