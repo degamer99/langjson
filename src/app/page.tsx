@@ -4,6 +4,8 @@ import { useState, useEffect, useRef } from "react";
 import { Input } from "@/components/ui/input";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar"
 import { AppSidebar } from "@/components/app-sidebar"
+import Header from "@/components/header"
+import { useComponentStore } from "@/store/userStore";
 
 const Test = () => {
   const exampleData = [
@@ -51,7 +53,11 @@ const Test = () => {
   }
   const [data, setData] = useState<Verse[]>([]); // ✅ strongly typed
   const [direction, setDirection] = useState<"rtl" | "ltr">("rtl");
+  const [theme, setTheme] = useState<"light" | "sepia" | "dark">("dark");
+  const [languageVisibility, setLanguageVisibility] = useState<boolean>(false);
   const jsonRef = useRef<HTMLInputElement | null>(null)
+
+  const { wordByWordVisibility } = useComponentStore()
 
   const importJson = () => {
     console.log("Impost Json")
@@ -69,6 +75,13 @@ const Test = () => {
 
   }
 
+  const handleLanguage = () => {
+    setLanguageVisibility(x => !x)
+  }
+
+  const handleTheme = (inputTheme: ("light" | "sepia" | "dark")) => {
+    setTheme(inputTheme)
+  }
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -101,42 +114,45 @@ const Test = () => {
     console.log("Updated data:", data);
   }, [data]);
 
+
   return (
     <SidebarProvider>
-      <AppSidebar importJson={importJson} switchRTL={switchRTL} />
-      <SidebarTrigger />
-      <main className="flex flex-col items-center justify-center min-h-screen w-full overflow-hidden">
+      <AppSidebar importJson={importJson} switchRTL={switchRTL} handleTheme={handleTheme} languageVisibility={languageVisibility} handleLanguage={handleLanguage} />
+      {/* <SidebarTrigger /> */}
+
+      <main className={`flex flex-col items-center justify-center min-h-screen w-full overflow-hidden ${theme} sepia:bg-sepia-100 dark:bg-gray-900`}>
+        <Header />
         <div className="my-auto">
           <Input ref={jsonRef} type="file" accept=".json" onChange={handleFileChange} hidden={data && data.length > 0} />
         </div>
 
         <div
-          className="flex flex-wrap justify-center gap-4 text-2xl mb-4"
+          className="flex flex-wrap justify-center gap-4 text-2xl mb-4 sepia:text-gray-900 dark:text-gray-200 "
           dir={direction} // <-- controls layout direction
         >
           {data && data.length > 0 ? (
             data.map(({ id, language, translation, wordByWord, metadata }, index) => (
               <section key={index} className="w-9/12 border-b-2 py-8">
-                <p className="text-2xl text-gray-200">{`${language}`}</p>
+                <p className={`text-2xl ${languageVisibility ? "" : "hidden"}`}>{`${language}`}</p>
 
                 {/* Word-by-word */}
-                <div className="flex gap-4 flex-wrap my-4">
+                <div className={`flex gap-4 flex-wrap my-4 ${wordByWordVisibility ? "" : "hidden"}`}>
                   {wordByWord.map((word, i) => (
-                    <div key={i} className=" flex flex-col">
+                    <div key={i} className=" flex flex-col text-lg">
                       {/* <span className="font-arabic text-3xl">{word.language}</span> */}
-                      <span className="text-sm text-gray-100">{word.language}</span>
-                      <span className="text-xs text-gray-50">{word.translation}</span>
+                      <span className="">{word.language}</span>
+                      <span className="">{word.translation}</span>
                     </div>
                   ))}
                 </div>
-                <p className="text-2xl text-gray-200">{`${translation}`}</p>
+                <p className="text-xl">{`${translation}`}</p>
               </section>
             ))) : (
             <p>No data loaded yet.</p>
           )}
         </div>
       </main>
-    </SidebarProvider>
+    </SidebarProvider >
   );
 };
 

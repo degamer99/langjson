@@ -15,13 +15,19 @@ import { Switch } from "@/components/ui/switch"
 import { Separator } from "@/components/ui/separator"
 import { Button } from "@/components/ui/button"
 import { Slider } from "@/components/ui/slider"
+import { useComponentStore } from "@/store/userStore"
 
 interface AppSidebarProps {
   importJson: () => void; // function that returns nothing
   switchRTL: () => void; // function that returns nothing
+
+  handleTheme: (theme: ("light" | "sepia" | "dark")) => void; // function that returns nothing
+  languageVisibility: boolean;
+  handleLanguage: () => void; // function that returns nothing
 }
 
-export function AppSidebar({ importJson, switchRTL }: AppSidebarProps) {
+export function AppSidebar({ importJson, switchRTL, handleTheme, languageVisibility, handleLanguage }: AppSidebarProps) {
+  const { wordByWordVisibility, setWordByWordVisibility } = useComponentStore()
   return (
     // <Sidebar className="w-2/5">
     <Sidebar className="">
@@ -34,9 +40,9 @@ export function AppSidebar({ importJson, switchRTL }: AppSidebarProps) {
           <h3 className="text-sm font-medium mb-2">Theme</h3>
           <div className="flex items-center justify-between space-x-2 overflow-auto">
             <Button size="sm" variant="outline">Auto</Button>
-            <Button size="sm" variant="outline">Light</Button>
-            <Button size="sm" variant="outline">Sepia</Button>
-            <Button size="sm" variant="outline">Dark</Button>
+            <Button size="sm" variant="outline" onClick={() => handleTheme("light")}>Light</Button>
+            <Button size="sm" variant="outline" onClick={() => handleTheme("sepia")}>Sepia</Button>
+            <Button size="sm" variant="outline" onClick={() => handleTheme("dark")}>Dark</Button>
           </div>
           <p className="text-xs text-muted-foreground mt-2">
             The system theme automatically adapts to your light/dark mode settings
@@ -77,16 +83,6 @@ export function AppSidebar({ importJson, switchRTL }: AppSidebarProps) {
             </div>
           </div>
 
-          <p className="text-xs text-muted-foreground mt-2">
-            King Fahad Complex (V1 and V2) Fonts provide higher quality but take longer to load
-          </p>
-
-          <div className="mt-3 p-3 border rounded-md text-center">
-            <p className="font-arabic text-lg leading-relaxed">
-              أُو۟لَٰٓئِكَ عَلَىٰ هُدًۭى مِّن رَّبِّهِمْ ۖ
-              وَأُو۟لَٰٓئِكَ هُمُ ٱلْمُفْلِحُونَ
-            </p>
-          </div>
         </SidebarGroup>
 
         <Separator />
@@ -96,17 +92,24 @@ export function AppSidebar({ importJson, switchRTL }: AppSidebarProps) {
           <h3 className="text-sm font-medium mb-2">Word By Word</h3>
           <div className="space-y-2">
             <div className="flex items-center justify-between">
-              <Label htmlFor="translation">Translation</Label>
-              <Switch id="translation" />
+              <Label htmlFor="language">Language</Label>
+              <Switch id="language"
+                checked={languageVisibility}
+                onCheckedChange={handleLanguage} />
             </div>
             <div className="flex items-center justify-between">
-              <Label htmlFor="transliteration">Transliteration</Label>
-              <Switch id="transliteration" />
+              <Label htmlFor="WordForWord">Word For Word </Label>
+              <Switch id="WordForWord"
+                checked={wordByWordVisibility}
+                onCheckedChange={setWordByWordVisibility} />
             </div>
-            <div className="flex items-center justify-between">
-              <Label htmlFor="recitation">Recitation</Label>
-              <Switch id="recitation" />
-            </div>
+            {/* <div className="flex items-center justify-between"> */}
+            {/*   <Label htmlFor="transliteration">Transliteration</Label> */}
+            {/*   <Switch id="transliteration" */}
+            {/*     checked={field.value} */}
+            {/*     onCheckedChange={field.onChange}  */}
+            {/*   /> */}
+            {/* </div> */}
           </div>
 
           <div className="mt-3">
