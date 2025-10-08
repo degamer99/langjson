@@ -6,9 +6,9 @@ import {
   SidebarFooter,
   SidebarGroup,
   SidebarHeader,
-  SidebarMenuButton,
+  // SidebarMenuButton,
 } from "@/components/ui/sidebar"
-import { Card } from "@/components/ui/card"
+// import { Card } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select"
 import { Switch } from "@/components/ui/switch"
@@ -16,6 +16,8 @@ import { Separator } from "@/components/ui/separator"
 import { Button } from "@/components/ui/button"
 import { Slider } from "@/components/ui/slider"
 import { useComponentStore } from "@/store/userStore"
+import { FlashcardQuiz } from "./flashcard-quiz"
+import { Verse } from "@compoments/types"
 
 interface AppSidebarProps {
   importJson: () => void; // function that returns nothing
@@ -24,9 +26,10 @@ interface AppSidebarProps {
   handleTheme: (theme: ("light" | "sepia" | "dark")) => void; // function that returns nothing
   languageVisibility: boolean;
   handleLanguage: () => void; // function that returns nothing
+  data: Verse[];
 }
 
-export function AppSidebar({ importJson, switchRTL, handleTheme, languageVisibility, handleLanguage }: AppSidebarProps) {
+export function AppSidebar({ importJson, switchRTL, handleTheme, languageVisibility, handleLanguage, data }: AppSidebarProps) {
   const { wordByWordVisibility, setWordByWordVisibility } = useComponentStore()
   return (
     // <Sidebar className="w-2/5">
@@ -126,9 +129,14 @@ export function AppSidebar({ importJson, switchRTL, handleTheme, languageVisibil
             </Select>
           </div>
           <br />
-          <Button onClick={importJson}>Import Json</Button>
+          <Button className="text-xl" onClick={importJson}>Import Json</Button>
           <br />
-          <Button onClick={switchRTL}>Switch RTL</Button>
+          <Button className="text-xl" onClick={switchRTL}>Switch RTL</Button>
+
+          <br />
+          {data.length > 0 && (
+            <FlashcardQuiz data={data} />
+          )}
 
           <p className="text-xs text-muted-foreground mt-2">
             Word by word translation source: QuranWBW. This source is independent of the verse translation selection.
