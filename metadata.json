@@ -1,5 +1,4 @@
 {
   "name": "Interlinear Language Reader",
-  "description": "A React-based educational tool for reading interlinear texts with customizable themes, direction (LTR/RTL), and layout options.",
-  "requestFramePermissions": []
+  "description": "A React-based educational tool for reading interlinear texts with customizable themes, direction (LTR/RTL), and layout options."
 }

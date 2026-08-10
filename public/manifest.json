@@ -1,6 +1,7 @@
 {
   "short_name": "Interlinear",
   "name": "Interlinear Language Reader",
+  "description": "A privacy-friendly interlinear reader for language learners.",
   "icons": [
     {
       "src": "icon-192.png",
