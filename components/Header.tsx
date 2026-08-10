@@ -21,7 +21,8 @@ import {
   AlignRight, 
   MoveVertical,
   Pin,
-  PinOff
+  PinOff,
+  Trash2
 } from 'lucide-react';
 
 /*
@@ -34,7 +35,7 @@ import {
  * OUTPUT: JSX.Element
  */
 const Header: React.FC = () => {
-  const { settings, setData, setTheme, toggleRTL, updateView } = useAppStore();
+  const { data, settings, setData, setTheme, toggleRTL, updateView, clearSavedData } = useAppStore();
 
   const handleFileUpload = async (file: File) => {
     try {
@@ -42,6 +43,14 @@ const Header: React.FC = () => {
       setData(parsedData);
     } catch (error) {
       alert((error as Error).message);
+    }
+  };
+
+  // ADR-008: document/settings/scroll position now persist in IndexedDB
+  // beyond the tab session, so give users an explicit way to wipe it.
+  const handleClearData = () => {
+    if (confirm('Clear the loaded document and reset all settings? This cannot be undone.')) {
+      clearSavedData();
     }
   };
 
@@ -92,6 +101,17 @@ const Header: React.FC = () => {
             >
                {settings.view.isSticky ? <Pin size={18} /> : <PinOff size={18} />}
             </button>
+
+            {/* Clear Saved Data */}
+            {data && data.length > 0 && (
+              <button
+                onClick={handleClearData}
+                className="p-2 rounded-md text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
+                title="Clear saved data"
+              >
+                <Trash2 size={16} />
+              </button>
+            )}
           </div>
 
           {/* --- RIGHT: Controls Toolbar --- */}

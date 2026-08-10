@@ -7,7 +7,18 @@
 export default {
   content: [
     "./index.html",
-    "./src/**/*.{js,ts,jsx,tsx}",
+    "./*.{ts,tsx}",
+    "./components/**/*.{ts,tsx}",
+    "./store/**/*.{ts,tsx}",
+    "./utils/**/*.{ts,tsx}",
+  ],
+  // gap-y-{n} is built dynamically at runtime in ReaderList.tsx from the
+  // verticalSpacing slider (min 2, max 16, step 2 — see Header.tsx). Keep
+  // this range in sync with that slider or spacing will silently stop
+  // working for out-of-range values (ADR-004).
+  safelist: [
+    'gap-y-2', 'gap-y-4', 'gap-y-6', 'gap-y-8',
+    'gap-y-10', 'gap-y-12', 'gap-y-14', 'gap-y-16',
   ],
   darkMode: 'class', // Manual toggling via class
   theme: {

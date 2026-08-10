@@ -6,7 +6,7 @@
  *    - Render: Content
  */
 
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { useAppStore } from '../store/useAppStore';
 
 /*
@@ -14,10 +14,48 @@ import { useAppStore } from '../store/useAppStore';
  * INPUTS: None (Connected to Store)
  * PROCESSING: Retrieves 'data' and 'settings' from Zustand store. 
  *             Calculates layout classes based on settings.
+ *             Restores persisted scroll position once, after IndexedDB
+ *             hydration completes, and saves scroll position (debounced)
+ *             as the user reads (ADR-007).
  * OUTPUT: JSX.Element
  */
 const ReaderList: React.FC = () => {
-  const { data, settings } = useAppStore();
+  const { data, settings, hasHydrated, scrollPosition, setScrollPosition } = useAppStore();
+  const hasRestoredScroll = useRef(false);
+
+  // Restore scroll position once, after hydration and once content exists.
+  useEffect(() => {
+    if (hasHydrated && data && data.length > 0 && !hasRestoredScroll.current) {
+      window.scrollTo({ top: scrollPosition, behavior: 'auto' });
+      hasRestoredScroll.current = true;
+    }
+  }, [hasHydrated, data, scrollPosition]);
+
+  // Save scroll position as the user reads, debounced to avoid excessive
+  // IndexedDB writes.
+  useEffect(() => {
+    if (!data || data.length === 0) return;
+
+    let debounceTimer: ReturnType<typeof setTimeout>;
+    const handleScroll = () => {
+      clearTimeout(debounceTimer);
+      debounceTimer = setTimeout(() => {
+        setScrollPosition(window.scrollY);
+      }, 300);
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => {
+      clearTimeout(debounceTimer);
+      window.removeEventListener('scroll', handleScroll);
+    };
+  }, [data, setScrollPosition]);
+
+  // Avoid a flash of the empty state while IndexedDB hydration is still
+  // in flight on first load.
+  if (!hasHydrated) {
+    return <div className="min-h-[60vh]" aria-hidden="true" />;
+  }
 
   if (!data || data.length === 0) {
     return (
